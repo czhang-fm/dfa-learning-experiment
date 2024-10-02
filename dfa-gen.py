@@ -1,6 +1,6 @@
 import random
 
-INIT_SIZE = 5
+INIT_SIZE = 50
 INIT_ALPHABET = 2
 
 class DFA:
@@ -10,6 +10,7 @@ class DFA:
         self.alphabet = alphabet # set of actions
         self.transitions = {} # (state, action) -> state
         self.label = {} # 1 for accept, 0 for non-accept
+        self.depth = 0
 
     def generate_trans_label(self):
         """randomly generate the initial transitions and labelling"""
@@ -22,22 +23,30 @@ class DFA:
     #def __repr__(self) -> str:
     #    str(self.transitions)
 
-    """removing states non-reachable from 0"""
+    """removing states non-reachable from the initial state 0"""
+    """at the same time we compute the depth of the dfa """
     def remove_nonreachables(self):
         """we first find all indices reachable from 0 """
-        current = []
+        current = [] # the queue that is used for breadth-first exploration
+        depth = {} # mapping from states to their depth
+        max_depth = 0 # the value that is to be assigned to self.depth
         visited = set()
         current.append(0)
         visited.add(0)
+        depth[0] = 0
         while len(current) != 0:
             s = current[0]
             current.pop(0)
             for a in range(self.alphabet):
                 t = self.transitions[(s, a)]
                 if not(t in visited):
+                    depth[t] = depth[s] + 1
+                    if max_depth < depth[t]:
+                        max_depth = depth[t]
                     current.append(t)
                     visited.add(t)
         
+        self.depth = max_depth
         if len(visited) == self.size: ## no need to do any adjustment
             return
         
@@ -131,7 +140,14 @@ class DFA:
         self.size = idx
         self.transitions = tmp_transitions
         self.label = tmp_label
-
+    
+    def run(self, actions): # return 0 for non-accept, or 1 for accept
+        """run the current dfa with an array of actions"""
+        """we assume all actions are integers of values within [0, self.alphabet) """
+        state = 0
+        for a in actions:
+            state = self.transitions[(state, a)]
+        return self.label[state]
 
 def DFA_gen():
     """generate a random DFA with a specified size"""
@@ -140,18 +156,31 @@ def DFA_gen():
 
     return dfa
 
+def random_depth(d):
+    return d
+
+def gen_test(dfa):
+    # We generate test cases here.
+    # At the moment we generate at most n^{h+2} training cases of length up to 1.5 * h, 
+    # where h is the depth of the dfa and n is the size of alphabet
+    # After that we generate at most n^{h+1} test cases of length up to 1.5 * h
+    tests = []
+    max_num_tests = 2^(dfa.depth + 2)
+    return 
+
 def main():
     dfa = DFA_gen()
     # up to here the DFA is not necessarily minimal
-    print(dfa.transitions)
-    print(dfa.label)
+    #print(dfa.transitions)
+    #print(dfa.label)
     print(f"The DFA has {dfa.size} states.")
 
     dfa.remove_nonreachables()
     print("minimizing...")
     dfa.minimize()
-    print(dfa.transitions)
-    print(dfa.label)
-    print(f"The DFA now has {dfa.size} states.")
+    #print(dfa.transitions)
+    #print(dfa.label)
+    print(f"The DFA now has {dfa.size} states with depth {dfa.depth}.")
+    
     
 main()
