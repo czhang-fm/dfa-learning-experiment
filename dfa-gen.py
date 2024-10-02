@@ -2,6 +2,7 @@ import random
 
 INIT_SIZE = 50
 INIT_ALPHABET = 2
+DFA_NUM = 2
 
 class DFA:
     """A class that represents a deterministic finite automaton"""
@@ -157,7 +158,10 @@ def DFA_gen():
     return dfa
 
 def random_depth(d):
-    return d
+    if random.randint(0,1) == 1:
+        return d
+    else:
+        return random.randint(0, d-1)
 
 def gen_test(dfa):
     # We generate test cases here.
@@ -165,22 +169,59 @@ def gen_test(dfa):
     # where h is the depth of the dfa and n is the size of alphabet
     # After that we generate at most n^{h+1} test cases of length up to 1.5 * h
     tests = []
-    max_num_tests = 2^(dfa.depth + 2)
-    return 
+    max_num_tests = 2**(dfa.depth - 1) # + 2)
+    #print(max_num_tests)
+    max_depth = dfa.depth * 3 // 2
+    for i in range(max_num_tests):
+        test_d = random_depth(max_depth)
+        actions = []
+        action_string = ''
+        for j in range(test_d):
+            a = random.randint(0, dfa.alphabet - 1)
+            actions.append(a)
+            if j == test_d - 1:
+                action_string = action_string + str(a)
+            else:
+                action_string = action_string + str(a) + ' '
+        result = dfa.run(actions)
+        action_string = str(result) + ' ' + str(len(actions)) + ' ' + action_string
+        if action_string not in tests:
+            tests.append(action_string)
+    return tests
 
 def main():
-    dfa = DFA_gen()
+    #dfa = DFA_gen()
     # up to here the DFA is not necessarily minimal
     #print(dfa.transitions)
     #print(dfa.label)
-    print(f"The DFA has {dfa.size} states.")
-
-    dfa.remove_nonreachables()
-    print("minimizing...")
-    dfa.minimize()
-    #print(dfa.transitions)
-    #print(dfa.label)
-    print(f"The DFA now has {dfa.size} states with depth {dfa.depth}.")
-    
+    #print(f"The DFA has {dfa.size} states.")
+    #dfa.remove_nonreachables()
+    #print("minimizing...")
+    #dfa.minimize()
+    #print(f"The DFA now has {dfa.size} states with depth {dfa.depth}.")
+    #tests = gen_test(dfa)
+    #print(f"generated {len(tests)} test cases")
+    #for t in tests:
+    #    print(t)
+    num = 0
+    while num < DFA_NUM:
+        dfa = DFA_gen()
+        dfa.remove_nonreachables()
+        dfa.minimize()
+        train = gen_test(dfa)
+        train_filename = 'train' + str(num) + '.txt'
+        f = open(train_filename, "x")
+        f.write(f"The DFA has {dfa.size} states with depth {dfa.depth}. We have {len(train)} training entries.")
+        for t in train:
+            f.write('\n' + t)
+        f.close()
+        tests = gen_test(dfa)
+        test_filename = 'test' + str(num) + '.txt'
+        f = open(test_filename, "x")
+        f.write(f"The DFA has {dfa.size} states with depth {dfa.depth}. We have {len(tests)} test entries.")
+        for t in tests:
+            f.write('\n' + t)
+        f.close()
+        num += 1
     
 main()
