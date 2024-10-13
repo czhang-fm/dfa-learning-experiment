@@ -6,7 +6,7 @@ The first greedy strategy was implemented in dfa-compatible-merge.py as a proof 
 
 - **project target**
 
-We aim to develop a more sophisticated toolkit for (minimum-state) DFA learning with a standardised I/O format and components such as heuristic merging, compatibility test, randomization, DFA minimization, and operations we have not yet thought of.
-We will later explore and compare our approach with other solutions, such as those by reduction to a SAT-solver.
+We aim to develop a more sophisticated toolkit for (minimum-state) DFA learning with a standardised I/O format and components such as heuristic merging, compatibility test, randomization, DFA minimization, and operations on DFA that we have not yet thought of.
+We will later explore and compare our approach with other solutions, such as those used in Abbadingo One competition and those by reduction to a SAT-solver.
 
 
